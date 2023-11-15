@@ -9,25 +9,26 @@ async function flowchartgpt(request, context) {
     if (!chartString) {
         return { body: 'No chart string provided', status: 400 };
     }
-
-    let htmlContent;
+    let svgContent;
 
     try {
         // Dynamically import mermaid
-        const mermaid = await import('mermaid');
-
+        //const mermaid = (await import('mermaid')).default;
+        const mermaid = require("headless-mermaid");
+        
         // Convert the Mermaid string to SVG
-        mermaid.mermaidAPI.render('mermaidChart', chartString, (svgCode) => {
-            htmlContent = `<div>${svgCode}</div>`;
-        });
+        svgContent = await mermaid.execute(chartString);
+        
     } catch (error) {
         context.log(`Error processing Mermaid chart: ${error}`);
         return { body: 'Error processing Mermaid chart', status: 500 };
     }
 
+    //const svgContent = container.innerHTML;
+
     // Return the HTML content
     return {
-        body: htmlContent,
+        body: svgContent,
         headers: { 'Content-Type': 'text/html' }
     };
 };
